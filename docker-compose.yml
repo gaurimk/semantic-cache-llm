@@ -1,0 +1,70 @@
+# docker-compose.yml
+# ------------------
+# OPTIONAL. This spins up the full "production-like" stack in one
+# command: the caching proxy, a free local LLM server (Ollama), and
+# free monitoring (Prometheus + Grafana). Every image here is free and
+# open-source — nothing requires an account or a credit card.
+#
+# Run it with:   docker compose up --build
+#
+# If you'd rather run things one at a time in VS Code without Docker,
+# see the "Quick Start (No Docker)" section of the README instead.
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: semantic-cache-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+
+  cache-proxy:
+    build: .
+    container_name: semantic-cache-proxy
+    ports:
+      - "8000:8000"
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434/v1"
+      DEFAULT_MODEL: "llama3.2:1b"
+      CHROMA_PERSIST_DIR: "/app/cache_data"
+      LOG_DIR: "/app/logs"
+    volumes:
+      - cache_data:/app/cache_data
+      - cache_logs:/app/logs
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: semantic-cache-prometheus
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+    depends_on:
+      - cache-proxy
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana-oss:latest
+    container_name: semantic-cache-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
+volumes:
+  ollama_data:
+  cache_data:
+  cache_logs:
+  grafana_data:

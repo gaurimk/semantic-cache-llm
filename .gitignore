@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Environment secrets (never commit your real .env)
+.env
+
+# App-generated data (your local cache database + logs — not source code)
+cache_data/
+logs/
+
+# OS/editor clutter
+.DS_Store
+.vscode/*.log
+*.log
+
+# Load test / demo output
+load_test_results.json
