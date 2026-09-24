@@ -20,7 +20,7 @@ beginner-friendly, so the bar for contributing is intentionally low.
 1. **Fork** this repository (click "Fork" on GitHub).
 2. **Clone your fork** to your computer:
    ```bash
-   git clone https://github.com/YOUR-USERNAME/semantic-cache-llm.git
+   git clone https://github.com/gaurimk/semantic-cache-llm.git
    cd semantic-cache-llm
    ```
 3. **Create a branch** for your change:
